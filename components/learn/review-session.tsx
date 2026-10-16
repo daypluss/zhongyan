@@ -35,7 +35,7 @@ export function ReviewSession() {
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
           Save a few terms from a story first. The schedule starts the moment they enter the vault.
         </p>
-        <Button className="mt-6" render={<Link href="/" />}>
+        <Button className="mt-6" nativeButton={false} render={<Link href="/" />}>
           Back to the briefing
         </Button>
       </div>
@@ -49,8 +49,8 @@ export function ReviewSession() {
         <h1 className="mt-2 font-serif text-4xl tracking-tight">{queue.length} reviewed</h1>
         <p className="mt-3 text-sm text-muted-foreground">{again} marked again. They return in about ten minutes.</p>
         <div className="mt-6 flex gap-2">
-          <Button render={<Link href="/progress" />}>See progress</Button>
-          <Button variant="outline" render={<Link href="/" />}>Briefing</Button>
+          <Button nativeButton={false} render={<Link href="/progress" />}>See progress</Button>
+          <Button variant="outline" nativeButton={false} render={<Link href="/" />}>Briefing</Button>
         </div>
       </div>
     );

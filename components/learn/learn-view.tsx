@@ -88,7 +88,7 @@ export function LearnView() {
               : "Due now, including anything you just saved."}
           </p>
         </div>
-        <Button render={<Link href="/learn/review" />}>Start daily review</Button>
+        <Button nativeButton={false} render={<Link href="/learn/review" />}>Start daily review</Button>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">

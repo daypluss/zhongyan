@@ -107,7 +107,7 @@ export function BriefingView() {
               <Button variant="outline" size="sm" onClick={dismissDesk}>
                 Later
               </Button>
-              <Button size="sm" render={<Link href="/onboarding" />}>
+              <Button size="sm" nativeButton={false} render={<Link href="/onboarding" />}>
                 Set your desk
               </Button>
             </div>
@@ -190,7 +190,7 @@ export function BriefingView() {
           <p className="text-[11px] tracking-[0.14em] text-muted-foreground uppercase">Due for review</p>
           <p className="mt-2 font-serif text-3xl tracking-tight">{due}</p>
           <p className="text-xs text-muted-foreground">Saved terms whose interval has come up.</p>
-          <Button className="mt-3 w-full" variant="outline" render={<Link href="/learn/review" />}>
+          <Button className="mt-3 w-full" variant="outline" nativeButton={false} render={<Link href="/learn/review" />}>
             Open daily review
           </Button>
         </div>

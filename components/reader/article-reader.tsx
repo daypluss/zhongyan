@@ -355,10 +355,10 @@ export function ArticleReader({ id }: { id: string }) {
             {lookups.length} lookups · est. comprehension with help {score}% · {Math.max(1, Math.round((progress?.seconds ?? 0) / 60))} min on this page
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" render={<Link href="/learn/review" />}>
+            <Button size="sm" variant="outline" nativeButton={false} render={<Link href="/learn/review" />}>
               Review vocabulary
             </Button>
-            <Button size="sm" render={<Link href={`/read/${upcoming.id}`} />}>
+            <Button size="sm" nativeButton={false} render={<Link href={`/read/${upcoming.id}`} />}>
               Next article
             </Button>
           </div>

@@ -4,21 +4,33 @@ A China business briefing that teaches professional Chinese. The morning loop is
 
 This edition is original study copy in the register of a China technology and investment desk. It is not live news, not a scrape, and not a filing. Deal stories use demo companies. Real companies appear only as landscape context. Anything labeled inference is inference.
 
-## Run
+## Deploy
+
+### Local
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://127.0.0.1:3847](http://127.0.0.1:3847).
+The dev server listens on port 3847. Open [http://127.0.0.1:3847](http://127.0.0.1:3847).
 
 ```bash
 npm run build
 npm start
 ```
 
-Progress, saved vocabulary, and reader settings stay in this browser (`localStorage`, key `zhongyan.v1`). There is no account.
+`npm start` runs `next start` with no fixed port and no fixed host. It uses `PORT` when that variable is set, and otherwise port 3000.
+
+Progress, saved vocabulary, and reader settings stay in this browser (`localStorage`, key `zhongyan.v1`). There is no account. No environment variables are required.
+
+### Vercel
+
+This is a normal Next.js server app. `next.config.ts` does not set `output: "export"`, and there is no static-export step.
+
+1. Import the GitHub repository. Leave the framework preset on Next.js.
+2. Build command: `npm run build` (`next build --turbopack`). Leave the output directory as the Next.js default.
+3. Do not switch the project to a static export, and do not set a custom production port or host. Vercel supplies those.
 
 ## How to use it
 

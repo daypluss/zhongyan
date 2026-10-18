@@ -13,24 +13,25 @@ npm install
 npm run dev
 ```
 
-The dev server listens on port 3847. Open [http://127.0.0.1:3847](http://127.0.0.1:3847).
+The dev server listens on port 3847. The app uses the same `/zhongyan` base path as the public site. Open [http://127.0.0.1:3847/zhongyan/](http://127.0.0.1:3847/zhongyan/).
 
 ```bash
 npm run build
-npm start
 ```
 
-`npm start` runs `next start` with no fixed port and no fixed host. It uses `PORT` when that variable is set, and otherwise port 3000.
+`npm run build` writes a static export to `out/` (`output: "export"` in `next.config.ts`). Page and asset URLs are prefixed with `/zhongyan`. To preview that folder, serve `out` with any static file server and open `/zhongyan/`.
 
 Progress, saved vocabulary, and reader settings stay in this browser (`localStorage`, key `zhongyan.v1`). There is no account. No environment variables are required.
 
-### Vercel
+### GitHub Pages
 
-This is a normal Next.js server app. `next.config.ts` does not set `output: "export"`, and there is no static-export step.
+The live site is [https://daypluss.github.io/zhongyan/](https://daypluss.github.io/zhongyan/).
 
-1. Import the GitHub repository. Leave the framework preset on Next.js.
-2. Build command: `npm run build` (`next build --turbopack`). Leave the output directory as the Next.js default.
-3. Do not switch the project to a static export, and do not set a custom production port or host. Vercel supplies those.
+Every push to `main` runs [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml). The workflow builds the static export and publishes `out/` with the official Pages actions (`configure-pages`, `upload-pages-artifact`, `deploy-pages`). You can also run it from the Actions tab with **Run workflow**.
+
+`next.config.ts` sets `basePath` and `assetPrefix` to `/zhongyan`, `images.unoptimized`, and `trailingSlash`. Article, topic, and company pages are pre-rendered from the seed data. The export includes `.nojekyll` so Pages serves the `_next` assets.
+
+If the site is not publishing yet, open **Settings → Pages → Build and deployment** and set **Source** to **GitHub Actions**. GitHub Pages hosts the files; there is no production port or host to configure.
 
 ## How to use it
 

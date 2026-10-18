@@ -3,6 +3,8 @@ import { entities, entityById } from "@/lib/data/entities";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return entities.map((entity) => ({ id: entity.id }));
 }

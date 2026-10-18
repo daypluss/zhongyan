@@ -3,6 +3,8 @@ import { articles, getArticle } from "@/lib/data";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return articles.map((article) => ({ id: article.id }));
 }

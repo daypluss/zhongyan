@@ -176,6 +176,15 @@ export type SavedTerm = {
   lexemeId: string;
   articleId: string;
   sentence: string;
+  /** Present when the word is not in the bundled business lexicon, so review can still show it. */
+  gloss?: {
+    chinese: string;
+    pinyin: string;
+    english: string;
+    pos?: string;
+    kind?: LexemeKind;
+    businessUsage?: string;
+  };
   savedAt: string;
   ease: number;
   interval: number;

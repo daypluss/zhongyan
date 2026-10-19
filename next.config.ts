@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
-
-const basePath = "/zhongyan";
+import { BASE_PATH } from "./lib/base-path";
 
 const nextConfig: NextConfig = {
   output: "export",
-  basePath,
-  assetPrefix: basePath,
+  basePath: BASE_PATH,
+  assetPrefix: BASE_PATH,
   trailingSlash: true,
   images: {
     unoptimized: true,

@@ -9,6 +9,7 @@ import type {
   Difficulty,
   Grade,
   LearningPriority,
+  SavedTerm,
   UserState,
 } from "@/lib/types";
 import {
@@ -78,7 +79,7 @@ function withActivity(state: UserState, patch: Partial<DayActivity>): UserState 
 type Store = {
   ready: boolean;
   state: UserState;
-  saveTerm: (lexemeId: string, articleId: string, sentence: string) => void;
+  saveTerm: (lexemeId: string, articleId: string, sentence: string, gloss?: SavedTerm["gloss"]) => void;
   gradeTerm: (lexemeId: string, grade: Grade) => void;
   lookup: (articleId: string, lexemeId: string) => void;
   toggleArticle: (articleId: string) => void;
@@ -125,7 +126,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(KEY, JSON.stringify(state));
   }, [ready, state]);
 
-  const saveTerm = useCallback((lexemeId: string, articleId: string, sentence: string) => {
+  const saveTerm = useCallback((lexemeId: string, articleId: string, sentence: string, gloss?: SavedTerm["gloss"]) => {
     setState((current) => {
       const progress = { ...emptyProgress(), ...current.read[articleId] };
       const saved = [...new Set([...progress.saved, lexemeId])];
@@ -146,6 +147,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             lexemeId,
             articleId,
             sentence,
+            gloss,
             savedAt: now,
             ease: 2.5,
             interval: 0,

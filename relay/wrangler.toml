@@ -1,0 +1,7 @@
+name = "zhongyan-relay"
+main = "src/index.ts"
+compatibility_date = "2026-10-01"
+
+# Optional. If you set this secret, every request must send the same value
+# in the X-Relay-Token header. Leave it unset to run without a token.
+#   npx wrangler secret put RELAY_TOKEN

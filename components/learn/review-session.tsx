@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { getLexeme } from "@/lib/data";
+import { resolveSavedLexeme } from "@/lib/terms";
 import { lexemes } from "@/lib/data/lexicon";
 import { speak } from "@/lib/speech";
 import { distractors, formatFor, isDue, shuffle, type ReviewFormat } from "@/lib/srs";
@@ -14,9 +14,10 @@ import { useMemo, useState } from "react";
 export function ReviewSession() {
   const { state, gradeTerm } = useUser();
   const queue = useMemo(() => {
-    const due = Object.values(state.terms).filter((term) => isDue(term));
+    const known = Object.values(state.terms).filter((term) => resolveSavedLexeme(term));
+    const due = known.filter((term) => isDue(term));
     if (due.length) return due.slice(0, 12);
-    return Object.values(state.terms).slice(0, 12);
+    return known.slice(0, 12);
   }, [state.terms]);
   const [index, setIndex] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -25,7 +26,7 @@ export function ReviewSession() {
   const [done, setDone] = useState(false);
 
   const term = queue[index];
-  const lex = term ? getLexeme(term.lexemeId) : undefined;
+  const lex = term ? resolveSavedLexeme(term) : undefined;
   const format = term ? formatFor(term) : "cn-en";
 
   if (queue.length === 0 || !term || !lex) {

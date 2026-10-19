@@ -2,7 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getArticle, getLexeme } from "@/lib/data";
+import { getArticle } from "@/lib/data";
+import { resolveSavedLexeme } from "@/lib/terms";
 import { isDue } from "@/lib/srs";
 import { useUser } from "@/lib/store";
 import { cn } from "cn";
@@ -22,7 +23,7 @@ export function LearnView() {
 
   const visible = useMemo(() => {
     return terms
-      .map((term) => ({ term, lex: getLexeme(term.lexemeId) }))
+      .map((term) => ({ term, lex: resolveSavedLexeme(term) }))
       .filter((item) => item.lex)
       .filter((item) => {
         const lex = item.lex!;
@@ -132,6 +133,12 @@ export function LearnView() {
                   <>
                     {" "}
                     · <Link href={`/read/${article.id}`} className="hover:underline">{article.titleCn}</Link>
+                  </>
+                )}
+                {!article && (term.articleId.startsWith("live:") || term.articleId.startsWith("import:")) && (
+                  <>
+                    {" "}
+                    · <Link href={`/live/?id=${encodeURIComponent(term.articleId.slice(term.articleId.indexOf(":") + 1))}`} className="hover:underline">Source text</Link>
                   </>
                 )}
               </p>

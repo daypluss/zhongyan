@@ -1,6 +1,7 @@
 "use client";
 
 import { ArticleCard } from "@/components/briefing/article-card";
+import { PersonalLibrary } from "@/components/personal/personal-library";
 import { Input } from "@/components/ui/input";
 import { articles } from "@/lib/data";
 import { categories } from "@/lib/data/categories";
@@ -83,6 +84,7 @@ export function LibraryView() {
           <ArticleCard key={article.id} article={article} />
         ))}
       </div>
+      <PersonalLibrary />
     </div>
   );
 }

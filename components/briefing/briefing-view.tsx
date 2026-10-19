@@ -1,8 +1,10 @@
 "use client";
 
 import { ArticleCard } from "@/components/briefing/article-card";
+import { LiveSection } from "@/components/live/live-section";
 import { Button } from "@/components/ui/button";
 import { articles } from "@/lib/data";
+import { useConnection, writeConnection } from "@/lib/live/settings";
 import { categories } from "@/lib/data/categories";
 import { difficultyLabel, formatEditionDate, greeting, plural } from "@/lib/format";
 import { todayActivity } from "@/lib/reading";
@@ -17,6 +19,7 @@ const DIFFICULTIES: Array<Difficulty | "all"> = ["all", "foundational", "interme
 
 export function BriefingView() {
   const { state, dismissDesk } = useUser();
+  const connection = useConnection();
   const router = useRouter();
   const [difficulty, setDifficulty] = useState<Difficulty | "all">("all");
   const [scope, setScope] = useState<"all" | "unread" | "saved">("all");
@@ -84,7 +87,7 @@ export function BriefingView() {
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-10 xl:grid-cols-[minmax(0,1fr)_272px]">
       <div>
         <p className="text-[11px] tracking-[0.16em] text-muted-foreground uppercase">
-          {formatEditionDate()} · Demo edition
+          {formatEditionDate()}
         </p>
         <p className="mt-4 font-serif text-sm text-muted-foreground">{greeting()}</p>
         <h1 className="mt-1 font-serif text-[2.4rem] leading-none tracking-tight sm:text-5xl">
@@ -97,8 +100,10 @@ export function BriefingView() {
           {plural(visible.length, "story")} in view · {termCount} terms · about {minutes} min if you read the edition
         </p>
         <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-          Original study copy in the register of the outlets on your desk. Not live reporting, and not scraped.
+          Live items come from your relay and stay in this browser. The demo edition below is original study copy, not live reporting.
         </p>
+
+        <LiveSection />
 
         {!state.onboarded && !state.dismissedDesk && (
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 text-sm">
@@ -114,7 +119,30 @@ export function BriefingView() {
           </div>
         )}
 
-        <div className="mt-6 flex flex-wrap gap-1.5">
+        {connection.hideDemo ? (
+          <button
+            type="button"
+            className="mt-8 text-sm text-muted-foreground underline-offset-4 hover:underline"
+            onClick={() => writeConnection({ ...connection, hideDemo: false })}
+          >
+            Show demo edition
+          </button>
+        ) : (
+        <>
+        <div className="mt-10 flex flex-wrap items-end justify-between gap-3 border-b pb-2">
+          <div>
+            <h2 className="font-serif text-xl tracking-tight">Demo</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">Original study pieces. Not fetched from the sources.</p>
+          </div>
+          <button
+            type="button"
+            className="text-xs text-muted-foreground hover:text-foreground"
+            onClick={() => writeConnection({ ...connection, hideDemo: true })}
+          >
+            Hide demo
+          </button>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-1.5">
           {DIFFICULTIES.map((item) => (
             <button
               key={item}
@@ -172,6 +200,8 @@ export function BriefingView() {
             </p>
           )}
         </div>
+        </>
+        )}
       </div>
 
       <aside className="space-y-4 xl:pt-28">

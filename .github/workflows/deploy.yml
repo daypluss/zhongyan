@@ -36,6 +36,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Reject fetched article text
+        run: node scripts/check-no-fetched-content.mjs
+
       - name: Add .nojekyll
         run: touch out/.nojekyll
 

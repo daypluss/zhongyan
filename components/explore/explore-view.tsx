@@ -1,6 +1,7 @@
 "use client";
 
 import { ArticleCard } from "@/components/briefing/article-card";
+import { PersonalLibrary } from "@/components/personal/personal-library";
 import { Input } from "@/components/ui/input";
 import { articles } from "@/lib/data";
 import { categories } from "@/lib/data/categories";
@@ -83,11 +84,15 @@ export function ExploreView() {
           </ul>
         )}
         {tab === "Saved" && (
-          <div className="grid gap-3">
-            {saved.length === 0 && <p className="text-sm text-muted-foreground">No saved stories yet.</p>}
-            {saved.map((article) => (
-              <ArticleCard key={article.id} article={article} />
-            ))}
+          <div>
+            <h2 className="font-serif text-xl tracking-tight">Demo</h2>
+            <div className="mt-3 grid gap-3">
+              {saved.length === 0 && <p className="text-sm text-muted-foreground">No saved demo stories yet.</p>}
+              {saved.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+            <PersonalLibrary />
           </div>
         )}
         {tab === "Sources" && (

@@ -1,0 +1,16 @@
+CC-CEDICT
+Community maintained free Chinese-English dictionary.
+Published by MDBG.
+
+License: Creative Commons Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Referenced work: CEDICT - Copyright (C) 1997, 1998 Paul Andrew Denisowski
+
+Source: https://www.mdbg.net/chinese/dictionary?page=cc-cedict
+Project: https://cc-cedict.org/wiki/
+
+The file cedict.txt.gz is a compact build of CC-CEDICT (simplified headword,
+tone-mark pinyin, and the first English gloss). It is not article text.
+Zhongyan uses it in the browser so a personal reader can look up words.
+Do not republish news articles fetched through the relay.

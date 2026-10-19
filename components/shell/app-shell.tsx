@@ -15,6 +15,7 @@ import { cn } from "cn";
 import {
   BookOpen,
   ChartColumn,
+  ClipboardPaste,
   Compass,
   Keyboard,
   Library,
@@ -28,12 +29,18 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
 const NAV = [
-  { href: "/", label: "Briefing", icon: Newspaper, match: (path: string) => path === "/" },
+  { href: "/", label: "Briefing", icon: Newspaper, match: (path: string) => path === "/" || path.startsWith("/live") },
   {
     href: "/read",
     label: "Read",
     icon: BookOpen,
     match: (path: string) => path.startsWith("/read"),
+  },
+  {
+    href: "/import",
+    label: "Import",
+    icon: ClipboardPaste,
+    match: (path: string) => path.startsWith("/import"),
   },
   {
     href: "/learn",
@@ -132,6 +139,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div>Demo edition · 16 Oct 2026</div>
           <div>{articles.length} original study pieces</div>
           <div className="flex items-center gap-2 pt-1">
+            <Link href="/settings" className="hover:text-foreground">
+              Settings
+            </Link>
             <ThemeButton />
             <button type="button" className="inline-flex items-center gap-1 hover:text-foreground" onClick={() => setHelpOpen(true)}>
               <Keyboard className="size-3.5" />
@@ -153,7 +163,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <main className="pb-24 md:pb-10">{children}</main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-background/95 backdrop-blur md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-background/95 backdrop-blur md:hidden">
         {NAV.map((item) => {
           const active = item.match(path);
           const Icon = item.icon;

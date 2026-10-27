@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteDocument, listDocuments } from "@/lib/live/db";
+import { readerHref } from "@/lib/live/id";
 import type { StoredDocument } from "@/lib/live/types";
 import { formatWhen } from "@/lib/format";
 import Link from "next/link";
@@ -41,7 +42,7 @@ export function PersonalLibrary() {
       </p>
       {documents.length === 0 && (
         <p className="mt-4 rounded-xl border border-dashed px-4 py-6 text-sm text-muted-foreground">
-          Nothing saved here yet. Paste a story on Import, or open a live item.
+          Nothing saved here yet. Paste an article on Import, or open a live item from the briefing.
         </p>
       )}
       <ul className="mt-4 space-y-3">
@@ -58,7 +59,7 @@ export function PersonalLibrary() {
               {document.textMode === "shownotes" ? " · Show notes" : ""}
             </p>
             <div className="mt-2 flex flex-wrap gap-3 text-sm">
-              <Link href={`/live/?id=${encodeURIComponent(document.id)}`} className="underline-offset-4 hover:underline">
+              <Link href={readerHref(document.id)} className="underline-offset-4 hover:underline">
                 Open
               </Link>
               {document.url && (

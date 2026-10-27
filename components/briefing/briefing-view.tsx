@@ -1,113 +1,57 @@
 "use client";
 
-import { ArticleCard } from "@/components/briefing/article-card";
 import { LiveSection } from "@/components/live/live-section";
+import { SectorPicker } from "@/components/sectors/sector-picker";
 import { Button } from "@/components/ui/button";
-import { articles } from "@/lib/data";
-import { useConnection, writeConnection } from "@/lib/live/settings";
-import { categories } from "@/lib/data/categories";
-import { difficultyLabel, formatEditionDate, greeting, plural } from "@/lib/format";
+import { categoryById } from "@/lib/data/categories";
+import { formatDeskDate, greeting } from "@/lib/format";
 import { todayActivity } from "@/lib/reading";
 import { useUser } from "@/lib/store";
-import type { CategoryId, Difficulty } from "@/lib/types";
-import { cn } from "cn";
+import { SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-
-const DIFFICULTIES: Array<Difficulty | "all"> = ["all", "foundational", "intermediate", "advanced"];
+import { useState } from "react";
 
 export function BriefingView() {
   const { state, dismissDesk } = useUser();
-  const connection = useConnection();
-  const router = useRouter();
-  const [difficulty, setDifficulty] = useState<Difficulty | "all">("all");
-  const [scope, setScope] = useState<"all" | "unread" | "saved">("all");
-  const [selected, setSelected] = useState(0);
-
-  const ordered = useMemo(() => {
-    const priority = new Set<CategoryId>([...state.follows.topics, ...state.interests]);
-    return [...categories].sort((a, b) => Number(priority.has(b.id)) - Number(priority.has(a.id)));
-  }, [state.follows.topics, state.interests]);
-
-  const visible = useMemo(() => {
-    return articles.filter((article) => {
-      if (difficulty !== "all" && article.difficulty !== difficulty) return false;
-      const read = state.read[article.id]?.readingDone;
-      if (scope === "unread" && read) return false;
-      if (scope === "saved" && !state.savedArticles.includes(article.id)) return false;
-      return true;
-    });
-  }, [difficulty, scope, state.read, state.savedArticles]);
-
-  const sections = ordered
-    .map((category) => ({
-      category,
-      stories: visible.filter((article) => article.category === category.id),
-    }))
-    .filter((section) => section.stories.length > 0);
-
-  const flat = sections.flatMap((section) => section.stories);
-  const termCount = new Set(visible.flatMap((article) => article.newWordIds)).size;
-  const minutes = visible.reduce((sum, article) => sum + article.readingMinutes, 0);
+  const [sectorsOpen, setSectorsOpen] = useState(false);
   const today = todayActivity(state);
   const due = Object.values(state.terms).filter((term) => new Date(term.due) <= new Date()).length;
-
-  useEffect(() => {
-    setSelected(0);
-  }, [difficulty, scope]);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
-      if (event.key === "j") {
-        event.preventDefault();
-        setSelected((index) => Math.min(flat.length - 1, index + 1));
-      }
-      if (event.key === "k") {
-        event.preventDefault();
-        setSelected((index) => Math.max(0, index - 1));
-      }
-      if (event.key === "Enter" && flat[selected]) {
-        router.push(`/read/${flat[selected].id}`);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [flat, router, selected]);
-
-  useEffect(() => {
-    const id = flat[selected]?.id;
-    if (!id) return;
-    document.querySelector(`[data-article="${id}"]`)?.scrollIntoView({ block: "nearest" });
-  }, [flat, selected]);
+  const sectors = state.interests.map((id) => categoryById[id]).filter(Boolean);
 
   return (
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:px-10 xl:grid-cols-[minmax(0,1fr)_272px]">
       <div>
-        <p className="text-[11px] tracking-[0.16em] text-muted-foreground uppercase">
-          {formatEditionDate()}
-        </p>
+        <p className="text-[11px] tracking-[0.16em] text-muted-foreground uppercase">{formatDeskDate()}</p>
         <p className="mt-4 font-serif text-sm text-muted-foreground">{greeting()}</p>
-        <h1 className="mt-1 font-serif text-[2.4rem] leading-none tracking-tight sm:text-5xl">
-          China Business Briefing
-        </h1>
+        <h1 className="mt-1 font-serif text-[2.4rem] leading-none tracking-tight sm:text-5xl">China Business Briefing</h1>
         <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-muted-foreground">
-          Learn Chinese through the news shaping China&apos;s technology and business landscape.
+          Live articles stay in this browser. Fetch them through your relay, or paste one on Import.
         </p>
-        <p className="mt-4 text-sm text-foreground/80">
-          {plural(visible.length, "story")} in view · {termCount} terms · about {minutes} min if you read the edition
-        </p>
-        <p className="mt-1 max-w-2xl text-xs leading-relaxed text-muted-foreground">
-          Live items come from your relay and stay in this browser. The demo edition below is original study copy, not live reporting.
-        </p>
-
-        <LiveSection />
+        <div className="mt-4 flex flex-wrap items-center gap-1.5">
+          {sectors.length === 0 ? (
+            <span className="rounded-full border px-2.5 py-1 text-xs text-muted-foreground">All sectors</span>
+          ) : (
+            sectors.map((category) => (
+              <span key={category.id} className="rounded-full border bg-card px-2.5 py-1 text-xs">
+                {category.short}
+              </span>
+            ))
+          )}
+          <button
+            type="button"
+            onClick={() => setSectorsOpen(true)}
+            className="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs text-muted-foreground hover:text-foreground"
+            aria-label="Edit sectors"
+          >
+            <SlidersHorizontal className="size-3.5" />
+            Edit sectors
+          </button>
+        </div>
+        <SectorPicker open={sectorsOpen} onOpenChange={setSectorsOpen} />
 
         {!state.onboarded && !state.dismissedDesk && (
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card px-4 py-3 text-sm">
-            <p>Set the desk — interests, level, and a 15-minute goal — so the briefing leads with your sectors.</p>
+            <p>Set the desk — sectors, level, and a 15-minute goal — so the briefing leads with what you cover.</p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={dismissDesk}>
                 Later
@@ -119,89 +63,7 @@ export function BriefingView() {
           </div>
         )}
 
-        {connection.hideDemo ? (
-          <button
-            type="button"
-            className="mt-8 text-sm text-muted-foreground underline-offset-4 hover:underline"
-            onClick={() => writeConnection({ ...connection, hideDemo: false })}
-          >
-            Show demo edition
-          </button>
-        ) : (
-        <>
-        <div className="mt-10 flex flex-wrap items-end justify-between gap-3 border-b pb-2">
-          <div>
-            <h2 className="font-serif text-xl tracking-tight">Demo</h2>
-            <p className="mt-0.5 text-xs text-muted-foreground">Original study pieces. Not fetched from the sources.</p>
-          </div>
-          <button
-            type="button"
-            className="text-xs text-muted-foreground hover:text-foreground"
-            onClick={() => writeConnection({ ...connection, hideDemo: true })}
-          >
-            Hide demo
-          </button>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {DIFFICULTIES.map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setDifficulty(item)}
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-xs text-muted-foreground",
-                difficulty === item && "border-foreground/20 bg-card text-foreground"
-              )}
-            >
-              {item === "all" ? "All levels" : difficultyLabel[item]}
-            </button>
-          ))}
-          {(["all", "unread", "saved"] as const).map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setScope(item)}
-              className={cn(
-                "rounded-full border px-2.5 py-1 text-xs text-muted-foreground capitalize",
-                scope === item && "border-foreground/20 bg-card text-foreground"
-              )}
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-8 space-y-10">
-          {sections.map(({ category, stories }) => (
-            <section key={category.id} id={category.id}>
-              <div className="mb-3 flex items-end justify-between gap-3 border-b pb-2">
-                <div>
-                  <h2 className="font-serif text-xl tracking-tight">{category.name}</h2>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{category.blurb}</p>
-                </div>
-                <Link href={`/explore/topics/${category.id}`} className="text-xs text-muted-foreground hover:text-foreground">
-                  {stories.length} {stories.length === 1 ? "story" : "stories"}
-                </Link>
-              </div>
-              <div className="grid gap-3 lg:grid-cols-2">
-                {stories.map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    article={article}
-                    selected={flat[selected]?.id === article.id}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
-          {sections.length === 0 && (
-            <p className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-              Nothing in this cut of the edition. Clear a filter to see the desk again.
-            </p>
-          )}
-        </div>
-        </>
-        )}
+        <LiveSection />
       </div>
 
       <aside className="space-y-4 xl:pt-28">
@@ -213,7 +75,7 @@ export function BriefingView() {
             <DeskRow label="Minutes" value={`${Math.round(today.seconds / 60)} / ${state.dailyGoal.minutes}`} />
           </ul>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            A sitting is one story, the lingo, a short quiz, and the terms already due.
+            A sitting is one article, the words you save, a short quiz when you have a key, and the terms already due.
           </p>
         </div>
         <div className="rounded-xl border bg-card p-4">
@@ -223,10 +85,6 @@ export function BriefingView() {
           <Button className="mt-3 w-full" variant="outline" nativeButton={false} render={<Link href="/learn/review" />}>
             Open daily review
           </Button>
-        </div>
-        <div className="rounded-xl border bg-card p-4 text-xs leading-relaxed text-muted-foreground">
-          <p className="text-[11px] tracking-[0.14em] uppercase">Keyboard</p>
-          <p className="mt-2">j and k move the highlight. Enter opens the story. s on a story saves it from the reader.</p>
         </div>
       </aside>
     </div>

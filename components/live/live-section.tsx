@@ -1,9 +1,10 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { categoryById } from "@/lib/data/categories";
-import { categorize, matchesDesk } from "@/lib/live/categorize";
+import { categorize } from "@/lib/live/categorize";
 import { readFeed, saveFeed, upsertFeedStub } from "@/lib/live/db";
-import { stableId } from "@/lib/live/id";
+import { readerHref, stableId } from "@/lib/live/id";
 import { fetchFeed, relayErrorCopy } from "@/lib/live/relay";
 import { useConnection } from "@/lib/live/settings";
 import { LIVE_SOURCES } from "@/lib/live/sources";
@@ -12,7 +13,7 @@ import { formatClock, formatWhen } from "@/lib/format";
 import { useUser } from "@/lib/store";
 import type { CategoryId } from "@/lib/types";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type SourceState = {
   id: string;
@@ -29,7 +30,9 @@ export function LiveSection() {
   const [sources, setSources] = useState<SourceState[]>([]);
   const [loading, setLoading] = useState(false);
   const [onlyDesk, setOnlyDesk] = useState(true);
+  const [reload, setReload] = useState(0);
   const configured = Boolean(settings.relayUrl);
+  const sectors = state.interests;
 
   useEffect(() => {
     if (!configured) return;
@@ -45,19 +48,17 @@ export function LiveSection() {
     return () => {
       cancel = true;
     };
-  }, [configured, settings]);
-
-  const desk = useMemo(() => new Set<CategoryId>([...state.interests, ...state.follows.topics]), [state.follows.topics, state.interests]);
+  }, [configured, reload, settings]);
 
   if (!configured) {
     return (
       <section className="mt-6 rounded-xl border border-dashed px-4 py-4">
         <p className="text-[11px] tracking-[0.14em] text-muted-foreground uppercase">Live</p>
         <p className="mt-2 text-sm leading-relaxed">
-          Real articles stay on their own sites until you add a relay. Nothing is fetched, and nothing is stored in this public site.
+          Fetch latest needs a relay saved in this browser. Until then nothing is requested, and this site stores no article text.
         </p>
         <Link href="/settings" className="mt-3 inline-block text-sm underline-offset-4 hover:underline">
-          Add a relay in Settings
+          Open Settings
         </Link>
       </section>
     );
@@ -72,16 +73,23 @@ export function LiveSection() {
             Personal reading in this browser. Titles and text are cached in IndexedDB, not in the site. Open the original if a source fails.
           </p>
         </div>
-        {desk.size > 0 && (
-          <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setOnlyDesk((value) => !value)}>
-            {onlyDesk ? "Your sectors" : "All live"}
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {sectors.length > 0 && (
+            <button type="button" className="text-xs text-muted-foreground hover:text-foreground" onClick={() => setOnlyDesk((value) => !value)}>
+              {onlyDesk ? "Your sectors" : "All live"}
+            </button>
+          )}
+          <Button type="button" size="sm" disabled={loading} onClick={() => setReload((value) => value + 1)}>
+            {loading ? "Fetching…" : "Fetch latest"}
+          </Button>
+        </div>
       </div>
       {loading && sources.length === 0 && <p className="mt-4 text-sm text-muted-foreground">Asking the relay for the six sources…</p>}
       <div className="mt-4 space-y-6">
         {sources.map((source) => {
-          const visible = source.items.filter((item) => !onlyDesk || desk.size === 0 || matchesDesk(item.category, state.interests, state.follows.topics));
+          const visible = source.items
+            .filter((item) => !onlyDesk || sectors.length === 0 || sectors.includes(item.category))
+            .sort((a, b) => sectorRank(a.category, sectors) - sectorRank(b.category, sectors));
           return (
             <div key={source.id}>
               <div className="mb-2 flex items-baseline justify-between gap-3">
@@ -96,7 +104,11 @@ export function LiveSection() {
                   {source.stale ? " Showing what this browser saved earlier." : ""}
                 </p>
               )}
-              {visible.length === 0 && !source.error && <p className="text-sm text-muted-foreground">No items in this cut.</p>}
+              {visible.length === 0 && !source.error && (
+                <p className="text-sm text-muted-foreground">
+                  {onlyDesk && sectors.length > 0 ? "No items in your sectors." : "No items from this source."}
+                </p>
+              )}
               <div className="grid gap-3 lg:grid-cols-2">
                 {visible.map((item) => (
                   <LiveCard key={item.id} item={item} />
@@ -133,11 +145,11 @@ function LiveCard({ item }: { item: DeskItem }) {
       </div>
       <div className="mt-3 flex flex-wrap gap-3 text-sm">
         {item.kind === "article" ? (
-          <Link href={`/live/?id=${item.id}`} className="underline-offset-4 hover:underline">
+          <Link href={readerHref(item.id)} className="underline-offset-4 hover:underline">
             Read here
           </Link>
         ) : (
-          <Link href={`/live/?id=${item.id}`} className="underline-offset-4 hover:underline">
+          <Link href={readerHref(item.id)} className="underline-offset-4 hover:underline">
             Play and notes
           </Link>
         )}
@@ -147,6 +159,11 @@ function LiveCard({ item }: { item: DeskItem }) {
       </div>
     </div>
   );
+}
+
+function sectorRank(category: CategoryId, sectors: CategoryId[]) {
+  const index = sectors.indexOf(category);
+  return index === -1 ? sectors.length : index;
 }
 
 async function loadSource(

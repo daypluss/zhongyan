@@ -1,16 +1,22 @@
 "use client";
 
+import { SectorPicker } from "@/components/sectors/sector-picker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { categoryById } from "@/lib/data/categories";
 import { studyErrorCopy, testAiKey } from "@/lib/live/ai";
 import { DEFAULT_MODELS, emptyConnection, useConnection, writeConnection, type AiProvider, type ConnectionSettings } from "@/lib/live/settings";
+import { useUser } from "@/lib/store";
 import { useEffect, useState } from "react";
 
 export function SettingsView() {
   const current = useConnection();
+  const { state } = useUser();
   const [draft, setDraft] = useState<ConnectionSettings>(emptyConnection);
   const [note, setNote] = useState("");
   const [testing, setTesting] = useState(false);
+  const [sectorsOpen, setSectorsOpen] = useState(false);
+  const sectorNames = state.interests.map((id) => categoryById[id]?.name).filter(Boolean);
 
   useEffect(() => {
     setDraft(current);
@@ -50,14 +56,15 @@ export function SettingsView() {
           autoComplete="off"
         />
       </label>
-      <label className="mt-4 flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={draft.hideDemo}
-          onChange={(event) => patch({ hideDemo: event.target.checked })}
-        />
-        Hide the demo edition on the briefing
-      </label>
+      <h2 className="mt-8 font-serif text-2xl tracking-tight">Sectors</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        These sectors lead the briefing and filter the live list. Saved in this browser with the rest of your desk.
+      </p>
+      <p className="mt-2 text-sm">{sectorNames.length === 0 ? "All sectors" : sectorNames.join(", ")}</p>
+      <Button className="mt-3" type="button" variant="outline" onClick={() => setSectorsOpen(true)}>
+        Edit sectors
+      </Button>
+      <SectorPicker open={sectorsOpen} onOpenChange={setSectorsOpen} />
 
       <h2 className="mt-8 font-serif text-2xl tracking-tight">Study model</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">

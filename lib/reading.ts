@@ -1,7 +1,7 @@
 import { categoryById } from "@/lib/data/categories";
-import { getLexeme, sentenceText } from "@/lib/data/index";
+import { getLexeme } from "@/lib/data/index";
 import { isoDate } from "@/lib/format";
-import type { Article, DayActivity, Difficulty, Domain, UserState } from "@/lib/types";
+import type { CategoryId, DayActivity, Domain, UserState } from "@/lib/types";
 
 const DOMAIN_LABELS: { id: Domain; label: string }[] = [
   { id: "finance", label: "Finance" },
@@ -18,43 +18,7 @@ const DOMAIN_LABELS: { id: Domain; label: string }[] = [
   { id: "macro", label: "Macro" },
 ];
 
-export function contentSegments(article: Article) {
-  return article.paragraphs.flatMap((paragraph) =>
-    paragraph.sentences.flatMap((sentence) =>
-      sentence.segments.filter((segment) => segment.lexemeId && !segment.punctuation)
-    )
-  );
-}
-
-export function comprehension(article: Article, state: UserState) {
-  const level = state.level;
-  const progress = state.read[article.id];
-  const lookups = new Set(progress?.lookups ?? []);
-  const segments = contentSegments(article);
-  if (!segments.length) return 0;
-  let known = 0;
-  for (const segment of segments) {
-    const lex = getLexeme(segment.lexemeId!);
-    if (!lex) continue;
-    if (lex.kind === "function") {
-      known += 1;
-      continue;
-    }
-    if (lookups.has(lex.id) || state.terms[lex.id]) {
-      known += 1;
-      continue;
-    }
-    if (level === "advanced" && lex.difficulty !== "advanced") known += 1;
-    else if (level === "intermediate" && lex.difficulty === "foundational") known += 1;
-  }
-  return Math.round((known / segments.length) * 100);
-}
-
-export function assumedKnown(difficulty: Difficulty, level: Difficulty) {
-  if (level === "advanced") return difficulty !== "advanced";
-  if (level === "intermediate") return difficulty === "foundational";
-  return false;
-}
+export type ReadPiece = { key: string; category: CategoryId };
 
 export function todayActivity(state: UserState): DayActivity {
   const today = isoDate();
@@ -101,26 +65,25 @@ export function weekMinutes(activity: DayActivity[]) {
   return days;
 }
 
-export function domainProficiency(state: UserState, articles: Article[]) {
+export function domainProficiency(state: UserState, pieces: ReadPiece[]) {
   return DOMAIN_LABELS.map((domain) => {
     const saved = Object.values(state.terms).filter((term) => getLexeme(term.lexemeId)?.domain === domain.id);
     const mastered = saved.filter((term) => term.status === "mastered").length;
     const reviewing = saved.filter((term) => term.status === "reviewing").length;
     const learning = saved.filter((term) => term.status === "learning" || term.status === "new").length;
-    const readArticles = articles.filter((article) => {
-      const progress = state.read[article.id];
-      return progress?.readingDone && categoryById[article.category].domain === domain.id;
+    const readArticles = pieces.filter((piece) => {
+      const progress = state.read[piece.key];
+      return progress?.readingDone && categoryById[piece.category]?.domain === domain.id;
     });
     const quizScores = readArticles
-      .map((article) => state.read[article.id])
+      .map((piece) => state.read[piece.key])
       .filter((progress) => progress?.quizDone && progress.quizTotal);
     const quizAvg = quizScores.length
       ? quizScores.reduce((sum, progress) => sum + (progress.quizScore ?? 0) / (progress.quizTotal || 1), 0) /
         quizScores.length
       : 0;
     const evidence = saved.length + readArticles.length;
-    const points =
-      mastered * 12 + reviewing * 6 + learning * 2 + readArticles.length * 8 + quizAvg * 10;
+    const points = mastered * 12 + reviewing * 6 + learning * 2 + readArticles.length * 8 + quizAvg * 10;
     return {
       ...domain,
       saved: saved.length,
@@ -135,18 +98,6 @@ export function quizAverage(state: UserState) {
   const done = Object.values(state.read).filter((progress) => progress.quizDone && progress.quizTotal);
   if (!done.length) return null;
   const ratio =
-    done.reduce((sum, progress) => sum + (progress.quizScore ?? 0) / (progress.quizTotal || 1), 0) /
-    done.length;
+    done.reduce((sum, progress) => sum + (progress.quizScore ?? 0) / (progress.quizTotal || 1), 0) / done.length;
   return Math.round(ratio * 100);
-}
-
-export function articleContext(article: Article, lexemeId: string) {
-  for (const paragraph of article.paragraphs) {
-    for (const sentence of paragraph.sentences) {
-      if (sentence.segments.some((segment) => segment.lexemeId === lexemeId)) {
-        return sentenceText(sentence.segments);
-      }
-    }
-  }
-  return "";
 }

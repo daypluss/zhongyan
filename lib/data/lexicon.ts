@@ -144,7 +144,7 @@ export const lexemes: Lexeme[] = [
     "category": "deal language",
     "domain": "internet",
     "kind": "business",
-    "businessUsage": "Renewal. Investors in this edition treat it as the evidence that commercialization happened.",
+    "businessUsage": "Renewal. Treat it as the evidence that commercialization happened.",
     "collocations": [
       "续约率",
       "订单续约"
@@ -209,7 +209,7 @@ export const lexemes: Lexeme[] = [
     "category": "deal language",
     "domain": "ai",
     "kind": "business",
-    "businessUsage": "Moving from a demo or pilot into repeatable paying use. Listen for who owns the budget, and whether the step can be checked.",
+    "businessUsage": "Moving from a trial or pilot into repeatable paying use. Listen for who owns the budget, and whether the step can be checked.",
     "collocations": [
       "商业化落地",
       "商业化路径",
@@ -340,7 +340,7 @@ export const lexemes: Lexeme[] = [
     "category": "deal language",
     "domain": "vc",
     "kind": "business",
-    "businessUsage": "A dated, checkable step in the terms. Weak ones name a demo. Strong ones name a paid use, a yield, or an acceptance.",
+    "businessUsage": "A dated, checkable step in the terms. Weak ones name a trial. Strong ones name a paid use, a yield, or an acceptance.",
     "collocations": [
       "商业化里程碑",
       "交付里程碑"
@@ -410,7 +410,7 @@ export const lexemes: Lexeme[] = [
     "id": "演示",
     "chinese": "演示",
     "pinyin": "yǎn shì",
-    "english": "demo",
+    "english": "product showing",
     "pos": "noun",
     "difficulty": "intermediate",
     "category": "tech jargon",
@@ -735,7 +735,7 @@ export const lexemes: Lexeme[] = [
     "category": "deal language",
     "domain": "ai",
     "kind": "business",
-    "businessUsage": "Deployment into real use. It is not another demo; it is a department that will pay.",
+    "businessUsage": "Deployment into real use. It is a department that will pay, not another trial.",
     "collocations": [
       "商业化落地",
       "落地节奏"
@@ -1016,17 +1016,6 @@ export const lexemes: Lexeme[] = [
       "控制权",
       "估值"
     ]
-  },
-  {
-    "id": "北麓机器人",
-    "chinese": "北麓机器人",
-    "pinyin": "běi lù jī qì rén",
-    "english": "Beilu Robotics (demo)",
-    "pos": "noun",
-    "difficulty": "foundational",
-    "category": "entity",
-    "domain": "robotics",
-    "kind": "vocabulary"
   },
   {
     "id": "完成",
@@ -3667,17 +3656,6 @@ export const lexemes: Lexeme[] = [
     "kind": "vocabulary"
   },
   {
-    "id": "衡石软件",
-    "chinese": "衡石软件",
-    "pinyin": "héng shí ruǎn jiàn",
-    "english": "Hengshi Software (demo)",
-    "pos": "noun",
-    "difficulty": "foundational",
-    "category": "entity",
-    "domain": "internet",
-    "kind": "vocabulary"
-  },
-  {
     "id": "报价",
     "chinese": "报价",
     "pinyin": "bào jià",
@@ -4743,17 +4721,6 @@ export const lexemes: Lexeme[] = [
     "kind": "vocabulary"
   },
   {
-    "id": "澄路科技",
-    "chinese": "澄路科技",
-    "pinyin": "chéng lù kē jì",
-    "english": "Chenglu Technology (demo)",
-    "pos": "noun",
-    "difficulty": "foundational",
-    "category": "entity",
-    "domain": "ev",
-    "kind": "vocabulary"
-  },
-  {
     "id": "金额",
     "chinese": "金额",
     "pinyin": "jīn é",
@@ -5195,7 +5162,7 @@ export const lexemes: Lexeme[] = [
     "id": "证明",
     "chinese": "证明",
     "pinyin": "zhèng míng",
-    "english": "demonstrate",
+    "english": "prove",
     "pos": "verb",
     "difficulty": "intermediate",
     "category": "general",
@@ -5923,17 +5890,6 @@ export const lexemes: Lexeme[] = [
     "kind": "function"
   },
   {
-    "id": "岸集品牌",
-    "chinese": "岸集品牌",
-    "pinyin": "àn jí pǐn pái",
-    "english": "Anji Brands (demo)",
-    "pos": "noun",
-    "difficulty": "foundational",
-    "category": "entity",
-    "domain": "consumer",
-    "kind": "vocabulary"
-  },
-  {
     "id": "押金",
     "chinese": "押金",
     "pinyin": "yā jīn",
@@ -6326,17 +6282,6 @@ export const lexemes: Lexeme[] = [
     "difficulty": "intermediate",
     "category": "finance",
     "domain": "finance",
-    "kind": "vocabulary"
-  },
-  {
-    "id": "析衡智能",
-    "chinese": "析衡智能",
-    "pinyin": "xī héng zhì néng",
-    "english": "Xiheng Intelligence (demo)",
-    "pos": "noun",
-    "difficulty": "foundational",
-    "category": "entity",
-    "domain": "ai",
     "kind": "vocabulary"
   },
   {

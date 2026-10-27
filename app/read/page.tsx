@@ -1,8 +1,13 @@
-import { LibraryView } from "@/components/read/library-view";
+import { ReadGate } from "@/components/read/read-gate";
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 export const metadata: Metadata = { title: "Read" };
 
 export default function ReadPage() {
-  return <LibraryView />;
+  return (
+    <Suspense fallback={<p className="px-6 py-16 text-sm text-muted-foreground">Opening…</p>}>
+      <ReadGate />
+    </Suspense>
+  );
 }

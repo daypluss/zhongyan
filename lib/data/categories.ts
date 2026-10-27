@@ -14,7 +14,7 @@ export const categories: Category[] = [
     name: "AI & Technology",
     short: "AI",
     domain: "ai",
-    blurb: "Models, agents, and the path from demo to budget.",
+    blurb: "Models, agents, and the path from a trial to a budget.",
   },
   {
     id: "vc",

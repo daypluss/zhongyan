@@ -5,7 +5,7 @@ const MODEL_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
 const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
 
 const STUDY_INSTRUCTION =
-  "You tutor one Chinese article for a personal reader. Use only the supplied text. Do not add companies, figures, dates, or causes that the text does not state. Put anything you infer only in inferences, and start each of those strings with 'Inference:'. Every sentences.cn, quiz.sentence, and quiz.keyPhrase must be copied verbatim from the article. Return JSON with keys sentences (array of {cn, en}), takeaways (array of {cn, en}), whyItMatters (string), facts (string array), inferences (string array), quiz (array of {prompt, options, answer, explanation, sentence, keyPhrase}). options has exactly 4 strings. answer is the index of the correct option. sentences are the lines worth translating. takeaways are the business points. whyItMatters explains the desk relevance without new facts. facts are claims the text reports. inferences are labeled guesses.";
+  "You tutor one Chinese article for a personal reader. Use only the supplied text. Do not add companies, figures, dates, or causes that the text does not state. Put anything you infer only in inferences, and start each of those strings with 'Inference:'. Every sentences.cn, quiz.sentence, and quiz.keyPhrase must be copied verbatim from the article. Return JSON with keys sentences (array of {cn, en}), takeaways (array of {cn, en}), whyItMatters (string), facts (string array), inferences (string array), entities (array of {name, note}), quiz (array of {prompt, options, answer, explanation, sentence, keyPhrase}). options has exactly 4 strings. answer is the index of the correct option. sentences are the lines worth translating. takeaways are the business points. whyItMatters explains the desk relevance without new facts. facts are claims the text reports. inferences are labeled guesses. entities.name is a company, product, person, or institution copied verbatim from the title or article. entities.note is a short English gloss using only that text. Omit any name that is not in the text.";
 
 const STUDY_SCHEMA = {
   type: "object",
@@ -29,6 +29,14 @@ const STUDY_SCHEMA = {
     whyItMatters: { type: "string" },
     facts: { type: "array", items: { type: "string" } },
     inferences: { type: "array", items: { type: "string" } },
+    entities: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { name: { type: "string" }, note: { type: "string" } },
+        required: ["name"],
+      },
+    },
     quiz: {
       type: "array",
       items: {
@@ -45,7 +53,7 @@ const STUDY_SCHEMA = {
       },
     },
   },
-  required: ["sentences", "takeaways", "whyItMatters", "facts", "inferences", "quiz"],
+  required: ["sentences", "takeaways", "whyItMatters", "facts", "inferences", "entities", "quiz"],
 };
 
 type GeminiPart = { text?: string; thought?: boolean };

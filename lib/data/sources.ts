@@ -109,7 +109,7 @@ export const sources: Source[] = [
     nameEn: "HongShan Hui",
     category: "Investor/Fund",
     description:
-      "HongShan content account in the reading diet. This edition does not attribute fictional memos to the firm.",
+      "HongShan content account in the reading diet. The app does not invent memos for the firm.",
     url: "https://www.hongshan.com",
     credibility: "Fund content",
     active: true,

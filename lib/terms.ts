@@ -1,7 +1,7 @@
 import { getLexeme } from "@/lib/data";
 import type { Lexeme, SavedTerm } from "@/lib/types";
 
-/** Demo lexicon first. Words saved from a live or pasted article carry their own gloss. */
+/** Business lexicon first. Words saved from a live or pasted article carry their own gloss. */
 export function resolveSavedLexeme(term: SavedTerm): Lexeme | undefined {
   const known = getLexeme(term.lexemeId);
   if (known) return known;

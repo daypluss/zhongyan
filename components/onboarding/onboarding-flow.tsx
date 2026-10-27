@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { categories } from "@/lib/data/categories";
+import { DEFAULT_SECTORS } from "@/lib/sectors";
 import { useUser } from "@/lib/store";
 import type { CategoryId, Difficulty, LearningPriority } from "@/lib/types";
 import { cn } from "cn";
@@ -26,7 +27,7 @@ export function OnboardingFlow() {
   const router = useRouter();
   const { completeOnboarding } = useUser();
   const [step, setStep] = useState(0);
-  const [interests, setInterests] = useState<CategoryId[]>(["ai", "semiconductors", "vc", "ev"]);
+  const [interests, setInterests] = useState<CategoryId[]>(DEFAULT_SECTORS);
   const [level, setLevel] = useState<Difficulty>("intermediate");
   const [priorities, setPriorities] = useState<LearningPriority[]>(["reading", "vocabulary", "business"]);
   const [goal, setGoal] = useState<15 | 20 | 30>(15);

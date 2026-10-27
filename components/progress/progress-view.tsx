@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { articles } from "@/lib/data";
 import { categories } from "@/lib/data/categories";
+import { progressKey } from "@/lib/live/id";
+import { useDocuments } from "@/lib/live/use-documents";
 import { domainProficiency, quizAverage, streak, todayActivity, weekMinutes } from "@/lib/reading";
 import { useUser } from "@/lib/store";
 import type { Difficulty, LearningPriority } from "@/lib/types";
@@ -19,7 +20,9 @@ const PRIORITIES: { id: LearningPriority; label: string }[] = [
 
 export function ProgressView() {
   const { state, completeOnboarding, resetDesk } = useUser();
-  const domains = domainProficiency(state, articles);
+  const { documents } = useDocuments();
+  const pieces = documents.map((document) => ({ key: progressKey(document), category: document.category }));
+  const domains = domainProficiency(state, pieces);
   const week = weekMinutes(state.activity);
   const max = Math.max(15, ...week.map((day) => day.minutes));
   const terms = Object.values(state.terms);
@@ -27,23 +30,27 @@ export function ProgressView() {
   const readCount = Object.values(state.read).filter((item) => item.readingDone).length;
   const average = quizAverage(state);
   const today = todayActivity(state);
-  const sectors = new Set(
-    articles.filter((article) => state.read[article.id]?.readingDone).map((article) => article.category)
-  );
+  const sectors = new Set(pieces.filter((piece) => state.read[piece.key]?.readingDone).map((piece) => piece.category));
+  const empty = readCount === 0 && terms.length === 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-10">
       <p className="text-[11px] tracking-[0.16em] text-muted-foreground uppercase">Progress</p>
       <h1 className="mt-2 font-serif text-4xl tracking-tight">China business Chinese</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-        A professional index by domain. It fills in from stories you finish, quizzes, and terms you actually review. Empty means no evidence yet — not a failing grade.
+        A professional index by domain. It fills in from articles you finish, quizzes, and terms you actually review. Empty means no evidence yet.
       </p>
+      {empty && (
+        <p className="mt-4 rounded-xl border border-dashed px-4 py-6 text-sm leading-relaxed text-muted-foreground">
+          Nothing recorded yet. Open an article from the briefing or Import and save a word. This page stays at zero until then.
+        </p>
+      )}
 
       <div className="mt-6 grid gap-3 sm:grid-cols-4">
-        <Stat label="Reading streak" value={String(streak(state.activity))} detail="days with a story or a review" />
-        <Stat label="Stories read" value={String(readCount)} detail={`${sectors.size} sectors touched`} />
+        <Stat label="Reading streak" value={String(streak(state.activity))} detail="days with an article or a review" />
+        <Stat label="Articles read" value={String(readCount)} detail={`${sectors.size} sectors touched`} />
         <Stat label="Terms mastered" value={`${mastered}`} detail={`${terms.length} in the vault`} />
-        <Stat label="Quiz average" value={average === null ? "—" : `${average}%`} detail="across finished stories" />
+        <Stat label="Quiz average" value={average === null ? "—" : `${average}%`} detail="across finished quizzes" />
       </div>
 
       <section className="mt-8 rounded-xl border bg-card p-4">
@@ -52,14 +59,18 @@ export function ProgressView() {
           {week.map((day) => (
             <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
               <div className="flex h-20 w-full items-end">
-                <div className="w-full rounded-sm bg-foreground/80" style={{ height: `${Math.max(4, (day.minutes / max) * 100)}%`, opacity: day.minutes ? 1 : 0.15 }} />
+                <div
+                  className="w-full rounded-sm bg-foreground/80"
+                  style={{ height: `${Math.max(4, (day.minutes / max) * 100)}%`, opacity: day.minutes ? 1 : 0.15 }}
+                />
               </div>
               <span className="text-[10px] text-muted-foreground">{day.label}</span>
             </div>
           ))}
         </div>
         <p className="mt-3 text-xs text-muted-foreground">
-          Today: {today.articles.length}/{state.dailyGoal.articles} stories · {today.reviews}/{state.dailyGoal.reviews} reviews · {Math.round(today.seconds / 60)}/{state.dailyGoal.minutes} min
+          Today: {today.articles.length}/{state.dailyGoal.articles} articles · {today.reviews}/{state.dailyGoal.reviews} reviews ·{" "}
+          {Math.round(today.seconds / 60)}/{state.dailyGoal.minutes} min
         </p>
       </section>
 
@@ -82,32 +93,18 @@ export function ProgressView() {
 
       <section className="mt-8 rounded-xl border bg-card p-4">
         <h2 className="font-serif text-2xl tracking-tight">Desk settings</h2>
-        <p className="mt-1 text-sm text-muted-foreground">Interests reorder the briefing. Level changes which words learning mode treats as new.</p>
-        <div className="mt-4 flex flex-wrap gap-1.5">
-          {categories.map((category) => {
-            const on = state.interests.includes(category.id);
-            return (
-              <button
-                key={category.id}
-                type="button"
-                onClick={() => {
-                  const interests = on
-                    ? state.interests.filter((id) => id !== category.id)
-                    : [...state.interests, category.id];
-                  completeOnboarding({
-                    interests,
-                    level: state.level,
-                    priorities: state.priorities,
-                    dailyGoal: state.dailyGoal,
-                  });
-                }}
-                className={`rounded-full border px-2.5 py-1 text-xs ${on ? "bg-foreground text-background" : "text-muted-foreground"}`}
-              >
-                {category.short}
-              </button>
-            );
-          })}
-        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Sectors are edited on the briefing or in Settings. Level changes which words learning mode treats as new.
+        </p>
+        <p className="mt-3 text-sm">
+          {state.interests.length === 0
+            ? "All sectors"
+            : state.interests.map((id) => categories.find((category) => category.id === id)?.short).filter(Boolean).join(" · ")}
+          {" · "}
+          <Link href="/settings" className="underline-offset-2 hover:underline">
+            Edit sectors
+          </Link>
+        </p>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           {LEVELS.map((level) => (
             <button
@@ -131,7 +128,9 @@ export function ProgressView() {
           {PRIORITIES.filter((item) => state.priorities.includes(item.id)).map((item) => (
             <span key={item.id}>{item.label}</span>
           ))}
-          <Link href="/onboarding" className="underline-offset-2 hover:underline">Edit onboarding</Link>
+          <Link href="/onboarding" className="underline-offset-2 hover:underline">
+            Redo onboarding
+          </Link>
         </div>
         <Button className="mt-4" variant="outline" size="sm" onClick={resetDesk}>
           Reset this browser&apos;s desk

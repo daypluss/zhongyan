@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { articles } from "@/lib/data";
 import { useUser } from "@/lib/store";
 import { cn } from "cn";
 import {
@@ -136,8 +135,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="space-y-2 border-t px-4 py-4 text-[11px] leading-relaxed text-muted-foreground">
-          <div>Demo edition · 16 Oct 2026</div>
-          <div>{articles.length} original study pieces</div>
+          <div>Personal reading</div>
+          <div>Articles stay in this browser</div>
           <div className="flex items-center gap-2 pt-1">
             <Link href="/settings" className="hover:text-foreground">
               Settings
@@ -192,10 +191,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           </DialogHeader>
           <ul className="grid gap-2 text-sm">
             {[
-              ["⌘K", "Search articles, terms, companies"],
-              ["j / k", "Move through the briefing"],
-              ["Enter", "Open the selected story"],
-              ["s", "Save the story, or the open term"],
+              ["⌘K", "Search articles and terms"],
+              ["s", "Save the open term"],
               ["p / e / l / a", "Pinyin, English, learning mode, audio"],
               ["?", "This list"],
             ].map(([key, label]) => (

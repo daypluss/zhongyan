@@ -31,7 +31,7 @@ function asNumber(value: unknown) {
   return Number.NaN;
 }
 
-export function parseStudyNotes(raw: string, article: string): StudyNotes {
+export function parseStudyNotes(raw: string, article: string, title = ""): StudyNotes {
   const parsed = extractJson(raw);
   const sourceNumbers = numbersIn(article);
   const sentences = (Array.isArray(parsed.sentences) ? parsed.sentences : []).filter(
@@ -54,13 +54,23 @@ export function parseStudyNotes(raw: string, article: string): StudyNotes {
     return [{ ...item, answer }];
   });
   const why = typeof parsed.whyItMatters === "string" && keepsNumbers(parsed.whyItMatters, sourceNumbers) ? parsed.whyItMatters : "";
-  return { sentences, takeaways, whyItMatters: why, facts, inferences, quiz };
+  const namedIn = `${title}\n${article}`;
+  const seen = new Set<string>();
+  const entities = (Array.isArray(parsed.entities) ? parsed.entities : []).flatMap((item) => {
+    if (!item || typeof item.name !== "string") return [];
+    const name = item.name.trim();
+    if (name.length < 2 || seen.has(name) || !namedIn.includes(name)) return [];
+    seen.add(name);
+    const note = typeof item.note === "string" && keepsNumbers(item.note, sourceNumbers) ? item.note.trim() : "";
+    return [{ name, note }];
+  });
+  return { sentences, takeaways, whyItMatters: why, facts, inferences, quiz, entities };
 }
 
 export async function requestStudy(settings: ConnectionSettings, title: string, text: string) {
   const content = settings.aiProvider === "gemini" ? await geminiStudy(settings, title, text) : (await fetchStudy(settings, title, text)).content ?? "";
   if (!content.trim()) throw new StudyError("empty_study", "The model returned an empty reply.");
-  return parseStudyNotes(content, text);
+  return parseStudyNotes(content, text, title);
 }
 
 export async function testAiKey(settings: ConnectionSettings) {

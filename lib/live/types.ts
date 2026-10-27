@@ -59,4 +59,6 @@ export type StudyNotes = {
     sentence: string;
     keyPhrase: string;
   }[];
+  /** Names the study model copied from this article. */
+  entities: { name: string; note: string }[];
 };

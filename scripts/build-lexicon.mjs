@@ -57,7 +57,7 @@ function pyOf(word) {
 const usage = {
   商业化: {
     usage:
-      "Moving from a demo or pilot into repeatable paying use. Listen for who owns the budget, and whether the step can be checked.",
+      "Moving from a trial or pilot into repeatable paying use. Listen for who owns the budget, and whether the step can be checked.",
     cols: ["商业化落地", "商业化路径", "加速商业化"],
     related: ["落地", "试点", "续约"],
   },
@@ -167,12 +167,12 @@ const usage = {
     related: ["里程碑", "估值", "交付"],
   },
   里程碑: {
-    usage: "A dated, checkable step in the terms. Weak ones name a demo. Strong ones name a paid use, a yield, or an acceptance.",
+    usage: "A dated, checkable step in the terms. Weak ones name a trial. Strong ones name a paid use, a yield, or an acceptance.",
     cols: ["商业化里程碑", "交付里程碑"],
     related: ["条款", "试点", "验收"],
   },
   落地: {
-    usage: "Deployment into real use. It is not another demo; it is a department that will pay.",
+    usage: "Deployment into real use. It is a department that will pay, not another trial.",
     cols: ["商业化落地", "落地节奏"],
     related: ["商业化", "试点", "付费"],
   },
@@ -182,7 +182,7 @@ const usage = {
     related: ["续约", "商业化", "订单"],
   },
   续约: {
-    usage: "Renewal. Investors in this edition treat it as the evidence that commercialization happened.",
+    usage: "Renewal. Treat it as the evidence that commercialization happened.",
     cols: ["续约率", "订单续约"],
     related: ["商业化", "订阅", "回款"],
   },

@@ -19,6 +19,7 @@ export function setDictionary(entries: Map<string, Entry>) {
 }
 
 const businessByWord = new Map(lexemes.filter((lex) => lex.kind === "business").map((lex) => [lex.chinese, lex]));
+const entityByWord = new Map(lexemes.filter((lex) => lex.category === "entity").map((lex) => [lex.chinese, lex]));
 const knownByWord = new Map(lexemes.filter((lex) => lex.kind !== "function").map((lex) => [lex.chinese, lex]));
 
 export function lookupWord(word: string) {
@@ -39,19 +40,20 @@ export function segmentText(text: string): Token[] {
     const max = Math.min(text.length, index + 12);
     for (let end = max; end > index + 1; end -= 1) {
       const slice = text.slice(index, end);
-      if (businessByWord.has(slice) || dictionary.has(slice)) {
+      if (businessByWord.has(slice) || entityByWord.has(slice) || dictionary.has(slice)) {
         size = end - index;
         break;
       }
     }
     const word = text.slice(index, index + size);
     const business = businessByWord.get(word);
+    const entity = entityByWord.get(word);
     const cedict = dictionary.get(word);
     const known = knownByWord.get(word);
     tokens.push({
       text: word,
-      pinyin: business?.pinyin || known?.pinyin || cedict?.pinyin || "",
-      english: business?.english || known?.english || cedict?.english || "",
+      pinyin: business?.pinyin || entity?.pinyin || known?.pinyin || cedict?.pinyin || "",
+      english: business?.english || entity?.english || known?.english || cedict?.english || "",
       business,
     });
     index += size;

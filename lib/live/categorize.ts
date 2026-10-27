@@ -21,9 +21,3 @@ export function categorize(title: string, excerpt: string, source: LiveSource): 
   }
   return source.fallback;
 }
-
-export function matchesDesk(category: CategoryId, interests: CategoryId[], follows: CategoryId[]) {
-  const wanted = new Set([...interests, ...follows]);
-  if (wanted.size === 0) return true;
-  return wanted.has(category);
-}

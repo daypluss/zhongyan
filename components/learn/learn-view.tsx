@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getArticle } from "@/lib/data";
+import { readerHref } from "@/lib/live/id";
 import { resolveSavedLexeme } from "@/lib/terms";
 import { isDue } from "@/lib/srs";
 import { useUser } from "@/lib/store";
@@ -75,7 +75,7 @@ export function LearnView() {
       <p className="text-[11px] tracking-[0.16em] text-muted-foreground uppercase">Learn</p>
       <h1 className="mt-2 font-serif text-4xl tracking-tight">Vocabulary vault</h1>
       <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-        Terms you saved from the briefing, with the sentence they came from. Review uses a simple spaced schedule — again, hard, good, easy.
+        Terms you saved from articles in this browser, with the sentence they came from. Review uses a simple spaced schedule — again, hard, good, easy.
       </p>
 
       <div className="mt-6 grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -84,7 +84,7 @@ export function LearnView() {
           <p className="text-sm text-muted-foreground">
             {due.length === 0
               ? terms.length === 0
-                ? "Nothing saved yet. Open a story and keep the terms you will actually use."
+                ? "Nothing saved yet. Open an article from the briefing or Import and save a word."
                 : "Nothing due. You can still practice the vault."
               : "Due now, including anything you just saved."}
           </p>
@@ -114,7 +114,9 @@ export function LearnView() {
 
       <ul className="mt-4 divide-y rounded-xl border bg-card">
         {visible.map(({ term, lex }) => {
-          const article = getArticle(term.articleId);
+          const sourceId = term.articleId.startsWith("live:") || term.articleId.startsWith("import:")
+            ? term.articleId.slice(term.articleId.indexOf(":") + 1)
+            : "";
           return (
             <li key={term.lexemeId} className="px-4 py-3">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -129,16 +131,10 @@ export function LearnView() {
               <p className="mt-2 font-cn text-sm leading-relaxed">{term.sentence}</p>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 {lex!.category} · due {new Date(term.due).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
-                {article && (
+                {sourceId && (
                   <>
                     {" "}
-                    · <Link href={`/read/${article.id}`} className="hover:underline">{article.titleCn}</Link>
-                  </>
-                )}
-                {!article && (term.articleId.startsWith("live:") || term.articleId.startsWith("import:")) && (
-                  <>
-                    {" "}
-                    · <Link href={`/live/?id=${encodeURIComponent(term.articleId.slice(term.articleId.indexOf(":") + 1))}`} className="hover:underline">Source text</Link>
+                    · <Link href={readerHref(sourceId)} className="hover:underline">Source text</Link>
                   </>
                 )}
               </p>
@@ -147,7 +143,7 @@ export function LearnView() {
         })}
         {visible.length === 0 && (
           <li className="px-4 py-10 text-center text-sm text-muted-foreground">
-            {terms.length === 0 ? "The vault is empty." : "No terms match this search."}
+            {terms.length === 0 ? "The vault is empty. Open an article and save a word." : "No terms match this search."}
           </li>
         )}
       </ul>

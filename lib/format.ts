@@ -7,14 +7,14 @@ export function isoDate(date = new Date()) {
   return `${year}-${month}-${day}`;
 }
 
-export function formatEditionDate() {
+export function formatDeskDate(date = new Date()) {
   return new Intl.DateTimeFormat("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "Asia/Shanghai",
-  }).format(new Date("2026-10-16T08:00:00+08:00"));
+  }).format(date);
 }
 
 export function formatWhen(iso: string) {

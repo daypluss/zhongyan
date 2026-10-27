@@ -19,7 +19,6 @@ export type ConnectionSettings = {
   aiProvider: AiProvider;
   aiModel: string;
   aiKey: string;
-  hideDemo: boolean;
 };
 
 export const emptyConnection: ConnectionSettings = {
@@ -28,7 +27,6 @@ export const emptyConnection: ConnectionSettings = {
   aiProvider: "gemini",
   aiModel: "",
   aiKey: "",
-  hideDemo: false,
 };
 
 function storedProvider(parsed: Partial<ConnectionSettings>): AiProvider {
@@ -44,14 +42,11 @@ export function readConnection(): ConnectionSettings {
     if (!raw) return emptyConnection;
     const parsed = JSON.parse(raw) as Partial<ConnectionSettings>;
     return {
-      ...emptyConnection,
-      ...parsed,
       relayUrl: String(parsed.relayUrl ?? "").trim(),
       relayToken: String(parsed.relayToken ?? ""),
       aiKey: String(parsed.aiKey ?? ""),
       aiModel: String(parsed.aiModel ?? ""),
       aiProvider: storedProvider(parsed),
-      hideDemo: Boolean(parsed.hideDemo),
     };
   } catch {
     return emptyConnection;

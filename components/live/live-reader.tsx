@@ -130,7 +130,7 @@ export function LiveReader() {
       const next = { ...doc, study: notes };
       await saveDocument(next);
       setDoc(next);
-      if (!notes.sentences.length && !notes.takeaways.length && !notes.quiz.length && !notes.whyItMatters && !notes.facts.length) {
+      if (!notes.sentences.length && !notes.takeaways.length && !notes.quiz.length && !notes.whyItMatters && !notes.facts.length && !notes.entities.length) {
         setStudyError("The model returned nothing that stayed inside this text.");
       }
     } catch (error) {
@@ -285,7 +285,7 @@ export function LiveReader() {
       <aside className="space-y-4 xl:pt-16">
         <div className="rounded-xl border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
           <p className="text-[11px] tracking-[0.14em] uppercase">This copy</p>
-          <p className="mt-2">Click a word for pinyin and a dictionary gloss. Business terms use the app lexicon. Saving uses the same vault and review schedule as the demo stories.</p>
+          <p className="mt-2">Click a word for pinyin and a dictionary gloss. Business terms use the app lexicon. Save to vault keeps the word on your review schedule.</p>
         </div>
       </aside>
     </div>
@@ -406,6 +406,19 @@ function Notes({ notes, onQuiz }: { notes: StudyNotes; onQuiz: (score: number, t
 
   return (
     <div className="space-y-6">
+      {(notes.entities?.length ?? 0) > 0 && (
+        <div>
+          <h3 className="text-[11px] tracking-[0.14em] text-muted-foreground uppercase">Names in this text</h3>
+          <ul className="mt-2 space-y-1 text-sm">
+            {notes.entities.map((item) => (
+              <li key={item.name}>
+                <span className="font-cn">{item.name}</span>
+                {item.note && <span className="text-muted-foreground"> — {item.note}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       {notes.sentences.length > 0 && (
         <div>
           <h3 className="text-[11px] tracking-[0.14em] text-muted-foreground uppercase">Sentences</h3>

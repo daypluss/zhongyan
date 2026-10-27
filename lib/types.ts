@@ -155,7 +155,6 @@ export type Entity = {
   sector: string;
   description: string;
   topics: CategoryId[];
-  fictional?: boolean;
 };
 
 export type Source = {

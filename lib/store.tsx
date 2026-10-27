@@ -92,6 +92,7 @@ type Store = {
   setReader: (patch: Partial<UserState["reader"]>) => void;
   setTheme: (theme: UserState["theme"]) => void;
   setInterests: (ids: CategoryId[]) => void;
+  setSectors: (ids: CategoryId[]) => void;
   completeOnboarding: (input: {
     interests: CategoryId[];
     level: Difficulty;
@@ -288,6 +289,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setState((current) => ({ ...current, interests: ids }));
   }, []);
 
+  const setSectors = useCallback((ids: CategoryId[]) => {
+    setState((current) => ({
+      ...current,
+      interests: ids,
+      follows: { ...current.follows, topics: ids },
+    }));
+  }, []);
+
   const completeOnboarding = useCallback(
     (input: {
       interests: CategoryId[];
@@ -331,6 +340,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setReader,
       setTheme,
       setInterests,
+      setSectors,
       completeOnboarding,
       dismissDesk,
       resetDesk,
@@ -351,6 +361,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setReader,
       setTheme,
       setInterests,
+      setSectors,
       completeOnboarding,
       dismissDesk,
       resetDesk,

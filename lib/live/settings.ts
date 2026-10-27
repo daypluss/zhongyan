@@ -5,7 +5,13 @@ import { useEffect, useState } from "react";
 const KEY = "zhongyan.connection";
 const EVENT = "zhongyan-connection";
 
-export type AiProvider = "openai" | "deepseek";
+export type AiProvider = "gemini" | "openai" | "deepseek";
+
+export const DEFAULT_MODELS: Record<AiProvider, string> = {
+  gemini: "gemini-3.8-flash",
+  openai: "gpt-4o-mini",
+  deepseek: "deepseek-chat",
+};
 
 export type ConnectionSettings = {
   relayUrl: string;
@@ -19,11 +25,17 @@ export type ConnectionSettings = {
 export const emptyConnection: ConnectionSettings = {
   relayUrl: "",
   relayToken: "",
-  aiProvider: "openai",
+  aiProvider: "gemini",
   aiModel: "",
   aiKey: "",
   hideDemo: false,
 };
+
+function storedProvider(parsed: Partial<ConnectionSettings>): AiProvider {
+  if (parsed.aiProvider === "gemini" || parsed.aiProvider === "deepseek") return parsed.aiProvider;
+  if (parsed.aiProvider === "openai" && String(parsed.aiKey ?? "").trim()) return "openai";
+  return "gemini";
+}
 
 export function readConnection(): ConnectionSettings {
   if (typeof window === "undefined") return emptyConnection;
@@ -38,7 +50,7 @@ export function readConnection(): ConnectionSettings {
       relayToken: String(parsed.relayToken ?? ""),
       aiKey: String(parsed.aiKey ?? ""),
       aiModel: String(parsed.aiModel ?? ""),
-      aiProvider: parsed.aiProvider === "deepseek" ? "deepseek" : "openai",
+      aiProvider: storedProvider(parsed),
       hideDemo: Boolean(parsed.hideDemo),
     };
   } catch {

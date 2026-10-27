@@ -2,13 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { emptyConnection, useConnection, writeConnection, type AiProvider, type ConnectionSettings } from "@/lib/live/settings";
+import { studyErrorCopy, testAiKey } from "@/lib/live/ai";
+import { DEFAULT_MODELS, emptyConnection, useConnection, writeConnection, type AiProvider, type ConnectionSettings } from "@/lib/live/settings";
 import { useEffect, useState } from "react";
 
 export function SettingsView() {
   const current = useConnection();
   const [draft, setDraft] = useState<ConnectionSettings>(emptyConnection);
   const [note, setNote] = useState("");
+  const [testing, setTesting] = useState(false);
 
   useEffect(() => {
     setDraft(current);
@@ -59,7 +61,7 @@ export function SettingsView() {
 
       <h2 className="mt-8 font-serif text-2xl tracking-tight">Study model</h2>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Optional. With a key, a live or pasted article can request a translation, takeaways, a fact-versus-inference note, and a quiz. Without a key those sections stay empty.
+        Optional. Gemini is recommended and has a free tier. With a key, a live or pasted article can request a translation, takeaways, why this matters, and a quiz. Word glosses and business lingo stay in the browser either way. Without a key those generated sections stay empty.
       </p>
       <label className="mt-4 block text-sm">
         Provider
@@ -68,6 +70,7 @@ export function SettingsView() {
           value={draft.aiProvider}
           onChange={(event) => patch({ aiProvider: event.target.value as AiProvider })}
         >
+          <option value="gemini">Gemini (recommended)</option>
           <option value="openai">OpenAI</option>
           <option value="deepseek">DeepSeek</option>
         </select>
@@ -77,7 +80,7 @@ export function SettingsView() {
         <Input
           className="mt-1"
           value={draft.aiModel}
-          placeholder={draft.aiProvider === "deepseek" ? "deepseek-chat" : "gpt-4o-mini"}
+          placeholder={DEFAULT_MODELS[draft.aiProvider]}
           onChange={(event) => patch({ aiModel: event.target.value })}
           autoComplete="off"
         />
@@ -93,16 +96,40 @@ export function SettingsView() {
           autoComplete="off"
         />
       </label>
+      {draft.aiProvider === "gemini" && (
+        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline">
+            Create a free key in Google AI Studio
+          </a>
+          . Gemini is called from this browser. The key is not sent to the relay.
+        </p>
+      )}
 
-      <Button
-        className="mt-6"
-        onClick={() => {
-          writeConnection({ ...draft, relayUrl: draft.relayUrl.trim() });
-          setNote("Saved in this browser.");
-        }}
-      >
-        Save
-      </Button>
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          disabled={testing}
+          onClick={() => {
+            setTesting(true);
+            setNote("");
+            void testAiKey({ ...draft, relayUrl: draft.relayUrl.trim(), aiModel: draft.aiModel.trim() })
+              .then(() => setNote("Key works."))
+              .catch((error: unknown) => setNote(studyErrorCopy(error)))
+              .finally(() => setTesting(false));
+          }}
+        >
+          {testing ? "Testing key…" : "Test key"}
+        </Button>
+        <Button
+          onClick={() => {
+            writeConnection({ ...draft, relayUrl: draft.relayUrl.trim(), aiModel: draft.aiModel.trim() });
+            setNote("Saved in this browser.");
+          }}
+        >
+          Save
+        </Button>
+      </div>
       {note && <p className="mt-3 text-sm text-muted-foreground">{note}</p>}
       <p className="mt-8 text-xs leading-relaxed text-muted-foreground">
         Live articles are for your own reading. Do not republish them. The worker stores nothing; the browser cache is yours.

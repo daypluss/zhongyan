@@ -53,6 +53,6 @@ curl -sS -H "Origin: http://127.0.0.1:3847" \
 
 `/v1/article?url=` fetches one article page and returns the main text when Readability can see it. If the page is a script shell, the response is `extraction_failed` and the app shows the feed excerpt, or an empty state, plus the original link.
 
-`/v1/ai` forwards one study request to OpenAI or DeepSeek. The key stays in the browser and is sent only for that request. The Worker does not save it.
+`/v1/ai` forwards one study request to OpenAI or DeepSeek. The key stays in the browser and is sent only for that request. The Worker does not save it. Gemini is not proxied: the app calls Google from the browser. A body of `{ "probe": true }` checks an OpenAI or DeepSeek key with a one-word request and stores nothing.
 
 第一财经's JSON endpoint is unofficial. If it changes, that source fails on its own and the others still load.

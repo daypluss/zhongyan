@@ -71,6 +71,18 @@ export function fetchStudy(settings: ConnectionSettings, title: string, text: st
   });
 }
 
+export function probeStudyKey(settings: ConnectionSettings) {
+  return call(settings, "v1/ai", undefined, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Ai-Key": settings.aiKey },
+    body: JSON.stringify({
+      provider: settings.aiProvider === "deepseek" ? "deepseek" : "openai",
+      model: settings.aiModel,
+      probe: true,
+    }),
+  });
+}
+
 export function relayErrorCopy(code: string) {
   switch (code) {
     case "relay_unset":

@@ -272,7 +272,7 @@ function parseYicai(text: string, base: URL): Item[] {
 async function aiResponse(request: Request, origin: string) {
   const key = request.headers.get("X-Ai-Key") ?? "";
   if (!key || key.length > 400) return json({ ok: false, error: "missing_ai_key" }, 400, origin);
-  let payload: { provider?: string; model?: string; title?: string; text?: string };
+  let payload: { provider?: string; model?: string; title?: string; text?: string; probe?: boolean };
   try {
     payload = await request.json();
   } catch {
@@ -282,9 +282,24 @@ async function aiResponse(request: Request, origin: string) {
   const endpoint = provider === "deepseek" ? "https://api.deepseek.com/chat/completions" : "https://api.openai.com/v1/chat/completions";
   const host = new URL(endpoint).hostname;
   if (!AI_HOSTS.has(host)) return json({ ok: false, error: "ai_host_not_allowed" }, 400, origin);
+  const model = String(payload.model || (provider === "deepseek" ? "deepseek-chat" : "gpt-4o-mini")).slice(0, 80);
+  if (payload.probe === true) {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model,
+        max_tokens: 8,
+        temperature: 0,
+        messages: [{ role: "user", content: "Reply with the single word ok." }],
+      }),
+    });
+    if (!response.ok) return json({ ok: false, error: `ai_${response.status}` }, 502, origin);
+    const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+    return json({ ok: true, content: data.choices?.[0]?.message?.content ?? "" }, 200, origin);
+  }
   const text = String(payload.text ?? "").slice(0, 12_000);
   if (text.length < 40) return json({ ok: false, error: "article_too_short" }, 400, origin);
-  const model = String(payload.model || (provider === "deepseek" ? "deepseek-chat" : "gpt-4o-mini")).slice(0, 80);
   const response = await fetch(endpoint, {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },

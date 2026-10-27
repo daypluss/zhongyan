@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { categoryById } from "@/lib/data/categories";
 import { formatClock, formatWhen } from "@/lib/format";
-import { parseStudyNotes } from "@/lib/live/ai";
+import { requestStudy, studyErrorCopy } from "@/lib/live/ai";
 import { loadCedict } from "@/lib/live/cedict";
 import { readDocument, saveDocument } from "@/lib/live/db";
-import { fetchArticle, fetchStudy, relayErrorCopy } from "@/lib/live/relay";
+import { fetchArticle, relayErrorCopy } from "@/lib/live/relay";
 import type { ConnectionSettings } from "@/lib/live/settings";
 import { useConnection } from "@/lib/live/settings";
 import { lookupWord, segmentText, splitSentences, type Token } from "@/lib/live/segment";
@@ -126,18 +126,15 @@ export function LiveReader() {
     setStudying(true);
     setStudyError("");
     try {
-      const body = await fetchStudy(settings, doc.title, doc.text);
-      const content = body.content ?? "";
-      if (!content) throw new Error("empty_study");
-      const notes = parseStudyNotes(content, doc.text);
+      const notes = await requestStudy(settings, doc.title, doc.text);
       const next = { ...doc, study: notes };
       await saveDocument(next);
       setDoc(next);
-      if (!notes.sentences.length && !notes.takeaways.length && !notes.quiz.length && !notes.whyItMatters) {
+      if (!notes.sentences.length && !notes.takeaways.length && !notes.quiz.length && !notes.whyItMatters && !notes.facts.length) {
         setStudyError("The model returned nothing that stayed inside this text.");
       }
     } catch (error) {
-      setStudyError(relayErrorCopy(error instanceof Error ? error.message : "fetch_failed"));
+      setStudyError(studyErrorCopy(error));
     } finally {
       setStudying(false);
     }

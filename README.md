@@ -91,7 +91,7 @@ Segmentation is a forward longest match against the business lexicon and [CC-CED
 
 Click a word for pinyin and a gloss. Business terms use the existing lexicon. **Save to vault** and daily review use the same schedule as the demo stories. A word that is only in CC-CEDICT keeps its gloss on the saved term so review can still show it.
 
-Sentence translation, takeaways, **Why this matters**, and a quiz run only if you add an OpenAI or DeepSeek API key in Settings. The key stays in `localStorage`. The relay sends one fixed study prompt to that provider and does not store the key. The browser drops lines that are not supported by the article text, and labels inferences separately from reported facts. Without a key, those sections ask you to add one. They do not invent a summary.
+Sentence translation, takeaways, **Why this matters**, and a quiz run only if you add an API key in Settings. Gemini is the recommended default (`gemini-3.8-flash`) and is called from this browser, so it does not need the relay. OpenAI and DeepSeek still go through the relay. The key stays in `localStorage`. Nothing in the app stores or logs it. The browser drops lines that are not supported by the article text, and labels inferences separately from reported facts. Without a key, those sections ask you to add one. They do not invent a summary. Word glosses and business lingo do not use the key.
 
 ## Personal use
 
